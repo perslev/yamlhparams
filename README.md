@@ -90,7 +90,7 @@ data:
     - 5
 ```
 
-Loading the samle hyperparameter file with the installed `my_ml_package` later 
+Loading the same hyperparameter file with the installed `my_ml_package` later 
 updated to version `0.2.0` will raise a `RuntimeWarning`:
 
 ```
