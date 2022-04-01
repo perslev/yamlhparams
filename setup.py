@@ -27,6 +27,7 @@ setup(
     package_dir={'yamlhparams': 'yamlhparams'},
     include_package_data=True,
     install_requires=requirements,
+    license_files=('LICENSE.txt',),
     classifiers=['Programming Language :: Python :: 3.6',
                  'Programming Language :: Python :: 3.7',
                  'Programming Language :: Python :: 3.8',
