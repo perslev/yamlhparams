@@ -150,9 +150,11 @@ class YAMLHParams(CommentedMap):
                 raise KeyError(f"Key '{key}' does not exist in requested group and cannot be deleted. "
                                f"If this is ok, specify 'non_existing_ok=True'.")
 
-    def save_current(self, out_path=None):
+    def save_current(self, out_path=None, return_copy=True):
         # Write current hparams version to file
         out_path = os.path.abspath(out_path or self.yaml_path)
         logger.info(f"Saving current YAMLHParams to file: {out_path}")
         with open(out_path, "w") as out_f:
             out_f.write(str(self))
+        if return_copy:
+            return YAMLHParams(out_path)
