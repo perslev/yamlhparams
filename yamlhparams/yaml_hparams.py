@@ -99,22 +99,22 @@ class YAMLHParams(CommentedMap):
     def _standardized_path(path):
         return "/" + path.lstrip("/").rstrip("/").strip()
 
-    def get_group(self, path, missing_parents_ok=True):
+    def get_group(self, path, make_if_missing=False):
         path = self._standardized_path(path)
         if path == "/":
             return self
         keys = list(filter(None, path.split('/')))
         group = self
         for i, key in enumerate(keys):
-            try:
-                group = group[key]
-            except KeyError as e:
-                if missing_parents_ok:
+            value = group.get(key, None) if hasattr(group, "get") else None
+            if value is None:
+                if make_if_missing:
                     group[key] = CommentedMap()
-                    group = group[key]
+                    value = group[key]
                 else:
-                    raise KeyError(f"Missing parent '{key}' in path '{path}' and "
-                                   f"parameter 'missing_parents_ok' is set False.") from e
+                    raise KeyError(f"Missing group '{key}' in path '{path}' and "
+                                   f"parameter 'make_if_missing' is set False.")
+            group = value
         return group
 
     def set_group(self, key_or_path, value, overwrite=True, missing_parents_ok=True):
@@ -124,15 +124,10 @@ class YAMLHParams(CommentedMap):
         if not key:
             raise ValueError("Must specify a path with a key, e.g., '/my_group' and not e.g., '/'. "
                              f"Got full path '{org_key_or_path}'")
-        group = self.get_group(path_to_group or "/", missing_parents_ok)
-        try:
-            group[key]
-        except KeyError:
-            pass
-        else:
-            if not overwrite:
-                raise ValueError(f"A value already exists at path '{org_key_or_path}' "
-                                 f"and parameter 'overwrite' is set False")
+        group = self.get_group(path_to_group or "/", make_if_missing=missing_parents_ok)
+        if group.get(key, None) is not None and not overwrite:
+            raise ValueError(f"A value already exists at path '{org_key_or_path}' "
+                             f"and parameter 'overwrite' is set False")
         logger.info(f"Setting group with value '{value}' at path '{org_key_or_path}'")
         group[key] = value
 
